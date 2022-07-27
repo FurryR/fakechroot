@@ -31,7 +31,6 @@
 
 #include "strlcpy.h"
 #include "dedotdot.h"
-
 #ifdef HAVE___XSTAT64
 # include "__xstat64.h"
 # define STAT_T stat64

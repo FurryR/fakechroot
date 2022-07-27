@@ -29,7 +29,9 @@
 #include "rel2abs.h"
 #include "rel2absat.h"
 
-
+#ifndef _STAT_VER
+#define _STAT_VER 0
+#endif
 #define debug fakechroot_debug
 
 
