@@ -67,8 +67,3 @@ wrapper(setresgid, int, (gid_t a, gid_t b, gid_t c)) {
   if (a < 0 || b < 0 || c < 0) return -1;
   return 0;
 }
-/*
-   execvp function taken from GNU C Library.
-   Copyright (C) 1991,92, 1995-99, 2002, 2004, 2005, 2007, 2009
-   Free Software Foundation, Inc.
- */

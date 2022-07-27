@@ -180,6 +180,18 @@ AC_CHECK_FUNCS(m4_normalize([
     dladdr
     dlmopen
     dlopen
+    getuid
+    geteuid
+    getresuid
+    getgid
+    getegid
+    getresgid
+    setuid
+    seteuid
+    setresuid
+    setgid
+    setegid
+    setresgid
     eaccess
     euidaccess
     execl
