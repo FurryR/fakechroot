@@ -1,10 +1,10 @@
-AC_PREREQ([2.71])
-AC_INIT([fakechroot],[2.20.2],[dexter@debian.org],[fakechroot],[https://github.com/dex4er/fakechroot])
+AC_PREREQ(2.64)
+AC_INIT([fakechroot], [2.20.2], [dexter@debian.org], [fakechroot], [https://github.com/dex4er/fakechroot])
 
 AC_CONFIG_SRCDIR([src/libfakechroot.c])
 AC_CONFIG_AUX_DIR([build-aux])
 AC_CONFIG_MACRO_DIR([m4])
-AC_CONFIG_HEADERS([config.h])
+AC_CONFIG_HEADER([config.h])
 
 AM_INIT_AUTOMAKE([1.10 foreign])
 m4_ifdef([AM_SILENT_RULES], [AM_SILENT_RULES([yes])])
@@ -19,8 +19,8 @@ AM_PROG_AR
 AC_PROG_CC
 AC_PROG_MAKE_SET
 AC_PROG_LN_S
-LT_INIT
-LT_PATH_NM
+AM_PROG_LIBTOOL
+AM_PROG_NM
 LT_INIT
 
 AC_CANONICAL_HOST
@@ -77,15 +77,7 @@ AC_CHECK_LIB([dl], [dlsym])
 
 # Checks for header files.
 AC_HEADER_DIRENT
-m4_warn([obsolete],
-[The preprocessor macro `STDC_HEADERS' is obsolete.
-  Except in unusual embedded environments, you can safely include all
-  ISO C90 headers unconditionally.])dnl
-# Autoupdate added the next two lines to ensure that your configure
-# script's behavior did not change.  They are probably safe to remove.
-AC_CHECK_INCLUDES_DEFAULT
-AC_PROG_EGREP
-
+AC_HEADER_STDC
 AC_CHECK_HEADERS(m4_normalize([
     alloca.h
     dirent.h
