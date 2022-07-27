@@ -26,6 +26,7 @@
 #define _POSIX_C_SOURCE 200809L
 #include <sys/types.h>
 #include <sys/stat.h>
+#include "ext.h"
 #include "libfakechroot.h"
 
 
@@ -35,6 +36,8 @@ wrapper(fchownat, int, (int dirfd, const char * path, uid_t owner, gid_t group, 
     char fakechroot_buf[FAKECHROOT_PATH_MAX];
     debug("fchownat(%d, \"%s\", %d, %d, %d)", dirfd, path, owner, group, flag);
     expand_chroot_path_at(dirfd, path);
+    if (owner == 0) owner = nextcall(getuid)();
+    if (group == 0) group = nextcall(getgid)();
     return nextcall(fchownat)(dirfd, path, owner, group, flag);
 }
 

@@ -28,7 +28,7 @@
 #include <sys/stat.h>
 #include <limits.h>
 #include <stdlib.h>
-
+#include "ext.h"
 #include "libfakechroot.h"
 
 
@@ -36,7 +36,10 @@ wrapper(stat64, int, (const char * file_name, struct stat64 * buf))
 {
     debug("stat64(\"%s\", &buf)", file_name);
     expand_chroot_path(file_name);
-    return nextcall(stat64)(file_name, buf);
+    int ret = nextcall(stat64)(file_name, buf);
+    if (buf->st_uid == nextcall(getuid)()) buf->st_uid = 0;
+    if (buf->st_gid == nextcall(getgid)()) buf->st_gid = 0;
+    return ret;
 }
 
 #else

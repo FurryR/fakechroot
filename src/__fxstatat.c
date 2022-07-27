@@ -17,7 +17,6 @@
     Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307  USA
 */
 
-
 #include <config.h>
 
 #ifdef HAVE___FXSTATAT
@@ -25,20 +24,24 @@
 #define _ATFILE_SOURCE
 #define _BSD_SOURCE
 #define _DEFAULT_SOURCE
-#include <sys/stat.h>
 #include <limits.h>
 #include <stdlib.h>
+#include <sys/stat.h>
 
+#include "ext.h"
 #include "libfakechroot.h"
 
-
-wrapper(__fxstatat, int, (int ver, int dirfd, const char * pathname, struct stat * buf, int flags))
-{
-    char fakechroot_abspath[FAKECHROOT_PATH_MAX];
-    char fakechroot_buf[FAKECHROOT_PATH_MAX];
-    debug("__fxstatat(%d, %d, \"%s\", &buf, %d)", ver, dirfd, pathname, flags);
-    expand_chroot_path_at(dirfd, pathname);
-    return nextcall(__fxstatat)(ver, dirfd, pathname, buf, flags);
+wrapper(__fxstatat, int,
+        (int ver, int dirfd, const char* pathname, struct stat* buf,
+         int flags)) {
+  char fakechroot_abspath[FAKECHROOT_PATH_MAX];
+  char fakechroot_buf[FAKECHROOT_PATH_MAX];
+  debug("__fxstatat(%d, %d, \"%s\", &buf, %d)", ver, dirfd, pathname, flags);
+  expand_chroot_path_at(dirfd, pathname);
+  int ret = nextcall(__fxstatat)(ver, dirfd, pathname, buf, flags);
+  if (buf->st_uid == nextcall(getuid)()) buf->st_uid = 0;
+  if (buf->st_gid == nextcall(getgid)()) buf->st_gid = 0;
+  return ret;
 }
 
 #else

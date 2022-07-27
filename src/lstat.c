@@ -24,6 +24,7 @@
 
 #include <sys/stat.h>
 #include <unistd.h>
+#include "ext.h"
 #include "libfakechroot.h"
 #include "lstat.h"
 
@@ -59,6 +60,8 @@ LOCAL int lstat_rel(const char * file_name, struct stat * buf)
     orig = file_name;
     expand_chroot_rel_path(file_name);
     retval = nextcall(lstat)(file_name, buf);
+    if (buf->st_uid == nextcall(getuid)()) buf->st_uid = 0;
+    if (buf->st_gid == nextcall(getgid)()) buf->st_gid = 0;
     /* deal with http://bugs.debian.org/561991 */
     if ((buf->st_mode & S_IFMT) == S_IFLNK)
         if ((status = readlink(orig, tmp, sizeof(tmp)-1)) != -1)

@@ -17,25 +17,26 @@
     Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307  USA
 */
 
-
 #include <config.h>
 
 #ifndef HAVE___XSTAT
 
 #define _BSD_SOURCE
 #define _DEFAULT_SOURCE
-#include <sys/stat.h>
 #include <limits.h>
 #include <stdlib.h>
+#include <sys/stat.h>
+#include "ext.h"
 
 #include "libfakechroot.h"
 
-
-wrapper(stat, int, (const char * file_name, struct stat * buf))
-{
-    debug("stat(\"%s\", &buf)", file_name);
-    expand_chroot_path(file_name);
-    return nextcall(stat)(file_name, buf);
+wrapper(stat, int, (const char* file_name, struct stat* buf)) {
+  debug("stat(\"%s\", &buf)", file_name);
+  expand_chroot_path(file_name);
+  int ret = nextcall(stat)(file_name, buf);
+  if(buf->st_uid == nextcall(getuid)()) buf->st_uid = 0;
+  if(buf->st_gid == nextcall(getgid)()) buf->st_gid = 0;
+  return ret;
 }
 
 #else

@@ -32,6 +32,7 @@
 
 #include "libfakechroot.h"
 #include "readlink.h"
+#include "ext.h"
 
 
 wrapper(__lxstat, int, (int ver, const char * filename, struct stat * buf))
@@ -48,6 +49,8 @@ wrapper(__lxstat, int, (int ver, const char * filename, struct stat * buf))
     orig_filename = filename;
     expand_chroot_path(filename);
     retval = nextcall(__lxstat)(ver, filename, buf);
+    if (buf->st_uid == nextcall(getuid)()) buf->st_uid = 0;
+    if (buf->st_gid == nextcall(getgid)()) buf->st_gid = 0;
     /* deal with http://bugs.debian.org/561991 */
     if ((retval == 0) && (buf->st_mode & S_IFMT) == S_IFLNK)
         if ((linksize = readlink(orig_filename, tmp, sizeof(tmp)-1)) != -1)

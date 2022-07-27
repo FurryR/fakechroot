@@ -29,7 +29,7 @@
 #include <sys/stat.h>
 #include <limits.h>
 #include <stdlib.h>
-
+#include "ext.h"
 #include "libfakechroot.h"
 
 
@@ -39,7 +39,10 @@ wrapper(__fxstatat64, int, (int ver, int dirfd, const char * pathname, struct st
     char fakechroot_buf[FAKECHROOT_PATH_MAX];
     debug("__fxstatat64(%d, %d, \"%s\", &buf, %d)", ver, dirfd, pathname, flags);
     expand_chroot_path_at(dirfd, pathname);
-    return nextcall(__fxstatat64)(ver, dirfd, pathname, buf, flags);
+    int ret = nextcall(__fxstatat64)(ver, dirfd, pathname, buf, flags);
+    if (buf->st_uid == nextcall(getuid)()) buf->st_uid = 0;
+    if (buf->st_gid == nextcall(getgid)()) buf->st_gid = 0;
+    return ret;
 }
 
 #else
