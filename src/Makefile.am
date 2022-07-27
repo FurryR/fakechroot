@@ -46,6 +46,7 @@ libfakechroot_la_SOURCES = \
     dladdr.c \
     dlmopen.c \
     dlopen.c \
+    ext.c \
     eaccess.c \
     euidaccess.c \
     execl.c \
