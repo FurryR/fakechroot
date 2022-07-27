@@ -29,12 +29,16 @@ wrapper_proto(geteuid, uid_t, ());
 wrapper_proto(getresuid, int, (uid_t *, uid_t *, uid_t *));
 wrapper_proto(getgid, gid_t, ());
 wrapper_proto(getegid, gid_t, ());
+
 wrapper_proto(getresgid, int, (gid_t *, gid_t *, gid_t *));
 wrapper_proto(setuid, int, (uid_t));
 wrapper_proto(seteuid, int, (uid_t));
+wrapper_proto(setreuid, int, (uid_t, uid_t));
 wrapper_proto(setresuid, int, (uid_t, uid_t, uid_t));
 wrapper_proto(setgid, int, (gid_t));
 wrapper_proto(setegid, int, (gid_t));
+wrapper_proto(setregid, int, (gid_t, gid_t));
 wrapper_proto(setresgid, int, (gid_t, uid_t, uid_t));
+wrapper_proto(getgroups, int, (int, gid_t[]));
 
 #endif

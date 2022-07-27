@@ -23,10 +23,6 @@
 
 #include "libfakechroot.h"
 
-#ifndef __GLIBC__
-extern char **environ;
-#endif
-
 wrapper(getuid, uid_t, ()) { return 0; }
 wrapper(geteuid, uid_t, ()) { return 0; }
 wrapper(getresuid, int, (uid_t * a, uid_t *b, uid_t *c)) {
@@ -51,6 +47,10 @@ wrapper(seteuid, int, (uid_t a)) {
   if (a < 0) return -1;
   return 0;
 }
+wrapper(setreuid, int, (uid_t a, uid_t b)) {
+  if (a < 0 || b < 0) return -1;
+  return 0;
+}
 wrapper(setresuid, int, (uid_t a, uid_t b, uid_t c)) {
   if (a < 0 || b < 0 || c < 0) return -1;
   return 0;
@@ -63,7 +63,18 @@ wrapper(setegid, int, (gid_t a)) {
   if (a < 0) return -1;
   return 0;
 }
+wrapper(setregid, int, (gid_t a, gid_t b)) {
+  if (a < 0 || b < 0) return -1;
+  return 0;
+}
 wrapper(setresgid, int, (gid_t a, gid_t b, gid_t c)) {
   if (a < 0 || b < 0 || c < 0) return -1;
   return 0;
+}
+wrapper(getgroups, int, (int size, gid_t list[])) {
+  if (size <= 0)
+    return 1;
+  else
+    list[0] = 0;
+  return 1;
 }
