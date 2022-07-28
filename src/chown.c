@@ -23,6 +23,7 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 #include "libfakechroot.h"
+#include "ext.h"
 
 
 wrapper(chown, int, (const char * path, uid_t owner, gid_t group))
@@ -31,5 +32,7 @@ wrapper(chown, int, (const char * path, uid_t owner, gid_t group))
     char fakechroot_buf[FAKECHROOT_PATH_MAX];
     debug("chown(\"%s\", %d, %d)", path, owner, group);
     expand_chroot_path(path);
+    if (owner == 0) owner = nextcall(getuid)();
+    if (group == 0) group = nextcall(getgid)();
     return nextcall(chown)(path, owner, group);
 }

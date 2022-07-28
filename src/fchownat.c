@@ -17,28 +17,27 @@
     Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307  USA
 */
 
-
 #include <config.h>
 
 #ifdef HAVE_FCHOWNAT
 
 #define _ATFILE_SOURCE
 #define _POSIX_C_SOURCE 200809L
-#include <sys/types.h>
 #include <sys/stat.h>
+#include <sys/types.h>
+
 #include "ext.h"
 #include "libfakechroot.h"
 
-
-wrapper(fchownat, int, (int dirfd, const char * path, uid_t owner, gid_t group, int flag))
-{
-    char fakechroot_abspath[FAKECHROOT_PATH_MAX];
-    char fakechroot_buf[FAKECHROOT_PATH_MAX];
-    debug("fchownat(%d, \"%s\", %d, %d, %d)", dirfd, path, owner, group, flag);
-    expand_chroot_path_at(dirfd, path);
-    if (owner == 0) owner = nextcall(getuid)();
-    if (group == 0) group = nextcall(getgid)();
-    return nextcall(fchownat)(dirfd, path, owner, group, flag);
+wrapper(fchownat, int,
+        (int dirfd, const char* path, uid_t owner, gid_t group, int flag)) {
+  char fakechroot_abspath[FAKECHROOT_PATH_MAX];
+  char fakechroot_buf[FAKECHROOT_PATH_MAX];
+  debug("fchownat(%d, \"%s\", %d, %d, %d)", dirfd, path, owner, group, flag);
+  expand_chroot_path_at(dirfd, path);
+  if (owner == 0) owner = nextcall(getuid)();
+  if (group == 0) group = nextcall(getgid)();
+  return nextcall(fchownat)(dirfd, path, owner, group, flag);
 }
 
 #else
