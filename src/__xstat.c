@@ -17,7 +17,6 @@
     Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307  USA
 */
 
-
 #include <config.h>
 
 #ifdef HAVE___XSTAT
@@ -25,20 +24,22 @@
 #define _ATFILE_SOURCE
 #define _BSD_SOURCE
 #define _DEFAULT_SOURCE
-#include <sys/stat.h>
 #include <limits.h>
 #include <stdlib.h>
+#include <sys/stat.h>
 
+#include "ext.h"
 #include "libfakechroot.h"
 
-
-wrapper(__xstat, int, (int ver, const char * filename, struct stat * buf))
-{
-    char fakechroot_abspath[FAKECHROOT_PATH_MAX];
-    char fakechroot_buf[FAKECHROOT_PATH_MAX];
-    debug("__xstat(%d, \"%s\", &buf)", ver, filename);
-    expand_chroot_path(filename);
-    return nextcall(__xstat)(ver, filename, buf);
+wrapper(__xstat, int, (int ver, const char* filename, struct stat* buf)) {
+  char fakechroot_abspath[FAKECHROOT_PATH_MAX];
+  char fakechroot_buf[FAKECHROOT_PATH_MAX];
+  debug("__xstat(%d, \"%s\", &buf)", ver, filename);
+  expand_chroot_path(filename);
+  int ret = nextcall(__xstat)(ver, filename, buf);
+  if (buf->st_uid == nextcall(getuid)()) buf->st_uid = 0;
+  if (buf->st_gid == nextcall(getgid)() == 0) buf->st_gid = 0;
+  return ret;
 }
 
 #else

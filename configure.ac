@@ -232,6 +232,7 @@ AC_CHECK_FUNCS(m4_normalize([
     inotify_add_watch
     lchmod
     lchown
+    fchown
     lckpwdf
     lgetxattr
     link
