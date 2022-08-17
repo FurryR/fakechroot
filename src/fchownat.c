@@ -35,8 +35,8 @@ wrapper(fchownat, int,
   char fakechroot_buf[FAKECHROOT_PATH_MAX];
   debug("fchownat(%d, \"%s\", %d, %d, %d)", dirfd, path, owner, group, flag);
   expand_chroot_path_at(dirfd, path);
-  if (owner == 0) owner = nextcall(getuid)();
-  if (group == 0) group = nextcall(getgid)();
+  owner = nextcall(getuid)();
+  group = nextcall(getgid)();
   return nextcall(fchownat)(dirfd, path, owner, group, flag);
 }
 

@@ -28,7 +28,6 @@
 #include <stdlib.h>
 #include <sys/stat.h>
 
-#include "ext.h"
 #include "libfakechroot.h"
 
 wrapper(__fxstatat, int,
@@ -39,8 +38,8 @@ wrapper(__fxstatat, int,
   debug("__fxstatat(%d, %d, \"%s\", &buf, %d)", ver, dirfd, pathname, flags);
   expand_chroot_path_at(dirfd, pathname);
   int ret = nextcall(__fxstatat)(ver, dirfd, pathname, buf, flags);
-  if (buf->st_uid == nextcall(getuid)()) buf->st_uid = 0;
-  if (buf->st_gid == nextcall(getgid)()) buf->st_gid = 0;
+  buf->st_uid = 0;
+  buf->st_gid = 0;
   return ret;
 }
 

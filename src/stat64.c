@@ -17,7 +17,6 @@
     Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307  USA
 */
 
-
 #include <config.h>
 
 #if defined(HAVE_STAT64) && !defined(HAVE___XSTAT64)
@@ -25,21 +24,19 @@
 #define _BSD_SOURCE
 #define _LARGEFILE64_SOURCE
 #define _DEFAULT_SOURCE
-#include <sys/stat.h>
 #include <limits.h>
 #include <stdlib.h>
-#include "ext.h"
+#include <sys/stat.h>
+
 #include "libfakechroot.h"
 
-
-wrapper(stat64, int, (const char * file_name, struct stat64 * buf))
-{
-    debug("stat64(\"%s\", &buf)", file_name);
-    expand_chroot_path(file_name);
-    int ret = nextcall(stat64)(file_name, buf);
-    if (buf->st_uid == nextcall(getuid)()) buf->st_uid = 0;
-    if (buf->st_gid == nextcall(getgid)()) buf->st_gid = 0;
-    return ret;
+wrapper(stat64, int, (const char* file_name, struct stat64* buf)) {
+  debug("stat64(\"%s\", &buf)", file_name);
+  expand_chroot_path(file_name);
+  int ret = nextcall(stat64)(file_name, buf);
+  buf->st_uid = 0;
+  buf->st_gid = 0;
+  return ret;
 }
 
 #else

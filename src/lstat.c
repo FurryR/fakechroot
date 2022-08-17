@@ -17,58 +17,52 @@
     Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307  USA
 */
 
-
 #include <config.h>
 
 #ifndef HAVE___LXSTAT
 
 #include <sys/stat.h>
 #include <unistd.h>
-#include "ext.h"
+
 #include "libfakechroot.h"
 #include "lstat.h"
 
+wrapper(lstat, int, (int ver, const char *filename, struct stat *buf)) {
+  debug("lstat(%d, \"%s\", &buf)", ver, filename);
 
-wrapper(lstat, int, (int ver, const char * filename, struct stat * buf))
-{
-    debug("lstat(%d, \"%s\", &buf)", ver, filename);
-
-    if (!fakechroot_localdir(filename)) {
-        if (filename != NULL) {
-            char abs_filename[FAKECHROOT_PATH_MAX];
-            rel2abs(filename, abs_filename);
-            filename = abs_filename;
-        }
+  if (!fakechroot_localdir(filename)) {
+    if (filename != NULL) {
+      char abs_filename[FAKECHROOT_PATH_MAX];
+      rel2abs(filename, abs_filename);
+      filename = abs_filename;
     }
+  }
 
-    return lstat_rel(ver, filename, buf);
+  return lstat_rel(ver, filename, buf);
 }
-
 
 /* Prevent looping with realpath() */
-LOCAL int lstat_rel(const char * file_name, struct stat * buf)
-{
-    char fakechroot_abspath[FAKECHROOT_PATH_MAX];
-    char fakechroot_buf[FAKECHROOT_PATH_MAX];
-    char *fakechroot_path;
-    char tmp[FAKECHROOT_PATH_MAX];
-    int retval;
-    READLINK_TYPE_RETURN status;
-    const char *orig;
+LOCAL int lstat_rel(const char *file_name, struct stat *buf) {
+  char fakechroot_abspath[FAKECHROOT_PATH_MAX];
+  char fakechroot_buf[FAKECHROOT_PATH_MAX];
+  char *fakechroot_path;
+  char tmp[FAKECHROOT_PATH_MAX];
+  int retval;
+  READLINK_TYPE_RETURN status;
+  const char *orig;
 
-    debug("lstat_rel(\"%s\", &buf)", file_name);
-    orig = file_name;
-    expand_chroot_rel_path(file_name);
-    retval = nextcall(lstat)(file_name, buf);
-    if (buf->st_uid == nextcall(getuid)()) buf->st_uid = 0;
-    if (buf->st_gid == nextcall(getgid)()) buf->st_gid = 0;
-    /* deal with http://bugs.debian.org/561991 */
-    if ((buf->st_mode & S_IFMT) == S_IFLNK)
-        if ((status = readlink(orig, tmp, sizeof(tmp)-1)) != -1)
-            buf->st_size = status;
-    return retval;
+  debug("lstat_rel(\"%s\", &buf)", file_name);
+  orig = file_name;
+  expand_chroot_rel_path(file_name);
+  retval = nextcall(lstat)(file_name, buf);
+  buf->st_uid = 0;
+  buf->st_gid = 0;
+  /* deal with http://bugs.debian.org/561991 */
+  if ((buf->st_mode & S_IFMT) == S_IFLNK)
+    if ((status = readlink(orig, tmp, sizeof(tmp) - 1)) != -1)
+      buf->st_size = status;
+  return retval;
 }
-
 
 #else
 typedef int empty_translation_unit;

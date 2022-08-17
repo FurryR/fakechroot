@@ -79,6 +79,7 @@ AC_CHECK_LIB([dl], [dlsym])
 AC_HEADER_DIRENT
 AC_HEADER_STDC
 AC_CHECK_HEADERS(m4_normalize([
+    grp.h
     alloca.h
     dirent.h
     dlfcn.h
@@ -194,6 +195,7 @@ AC_CHECK_FUNCS(m4_normalize([
     setegid
     setregid
     getgroups
+    setgroups
     setresgid
     eaccess
     euidaccess

@@ -17,7 +17,6 @@
     Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307  USA
 */
 
-
 #include <config.h>
 
 #ifdef HAVE___LXSTAT
@@ -26,37 +25,34 @@
 #define _BSD_SOURCE
 #define _XOPEN_SOURCE 500
 #define _DEFAULT_SOURCE
+#include <fcntl.h>
 #include <sys/stat.h>
 #include <unistd.h>
-#include <fcntl.h>
 
 #include "libfakechroot.h"
 #include "readlink.h"
-#include "ext.h"
 
+wrapper(__lxstat, int, (int ver, const char* filename, struct stat* buf)) {
+  char fakechroot_abspath[FAKECHROOT_PATH_MAX];
+  char fakechroot_buf[FAKECHROOT_PATH_MAX];
 
-wrapper(__lxstat, int, (int ver, const char * filename, struct stat * buf))
-{
-    char fakechroot_abspath[FAKECHROOT_PATH_MAX];
-    char fakechroot_buf[FAKECHROOT_PATH_MAX];
+  char tmp[FAKECHROOT_PATH_MAX];
+  int retval;
+  READLINK_TYPE_RETURN linksize;
+  const char* orig_filename;
 
-    char tmp[FAKECHROOT_PATH_MAX];
-    int retval;
-    READLINK_TYPE_RETURN linksize;
-    const char* orig_filename;
+  debug("__lxstat(%d, \"%s\", &buf)", ver, filename);
+  orig_filename = filename;
+  expand_chroot_path(filename);
+  retval = nextcall(__lxstat)(ver, filename, buf);
+  buf->st_uid = 0;
+  buf->st_gid = 0;
+  /* deal with http://bugs.debian.org/561991 */
+  if ((retval == 0) && (buf->st_mode & S_IFMT) == S_IFLNK)
+    if ((linksize = readlink(orig_filename, tmp, sizeof(tmp) - 1)) != -1)
+      buf->st_size = linksize;
 
-    debug("__lxstat(%d, \"%s\", &buf)", ver, filename);
-    orig_filename = filename;
-    expand_chroot_path(filename);
-    retval = nextcall(__lxstat)(ver, filename, buf);
-    if (buf->st_uid == nextcall(getuid)()) buf->st_uid = 0;
-    if (buf->st_gid == nextcall(getgid)()) buf->st_gid = 0;
-    /* deal with http://bugs.debian.org/561991 */
-    if ((retval == 0) && (buf->st_mode & S_IFMT) == S_IFLNK)
-        if ((linksize = readlink(orig_filename, tmp, sizeof(tmp)-1)) != -1)
-            buf->st_size = linksize;
-
-    return retval;
+  return retval;
 }
 
 #else

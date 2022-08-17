@@ -28,7 +28,6 @@
 #include <stdlib.h>
 #include <sys/stat.h>
 
-#include "ext.h"
 #include "libfakechroot.h"
 
 wrapper(__xstat, int, (int ver, const char* filename, struct stat* buf)) {
@@ -37,8 +36,8 @@ wrapper(__xstat, int, (int ver, const char* filename, struct stat* buf)) {
   debug("__xstat(%d, \"%s\", &buf)", ver, filename);
   expand_chroot_path(filename);
   int ret = nextcall(__xstat)(ver, filename, buf);
-  if (buf->st_uid == nextcall(getuid)()) buf->st_uid = 0;
-  if (buf->st_gid == nextcall(getgid)() == 0) buf->st_gid = 0;
+  buf->st_uid = 0;
+  buf->st_gid = 0;
   return ret;
 }
 

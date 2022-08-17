@@ -42,6 +42,7 @@ wrapper_proto(setegid, int, (gid_t));
 wrapper_proto(setregid, int, (gid_t, gid_t));
 wrapper_proto(setresgid, int, (gid_t, uid_t, uid_t));
 wrapper_proto(getgroups, int, (int, gid_t[]));
+wrapper_proto(setgroups, int, (size_t __n, const __gid_t *__groups));
 
 wrapper_proto(fchown, int, (int fd, uid_t owner, gid_t group));
 #endif

@@ -19,6 +19,7 @@
 
 #include <config.h>
 #include <fcntl.h>
+#include <grp.h>
 #include <stddef.h>
 #include <sys/stat.h>
 #include <unistd.h>
@@ -103,9 +104,13 @@ wrapper(getgroups, int, (int size, gid_t list[])) {
     list[0] = 0;
   return 1;
 }
+wrapper(setgroups, int, (size_t __n, const __gid_t *__groups)) {
+  debug("setgroups(%u,%p)", __n, __groups);
+  return 0;
+}
 wrapper(fchown, int, (int fd, uid_t owner, gid_t group)) {
   debug("fchown(\"%d\", %d, %d)", fd, owner, group);
-  if (owner == 0) owner = nextcall(getuid)();
-  if (group == 0) group = nextcall(getgid)();
+  owner = nextcall(getuid)();
+  group = nextcall(getgid)();
   return nextcall(fchown)(fd, owner, group);
 }

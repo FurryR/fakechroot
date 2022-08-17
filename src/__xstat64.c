@@ -17,7 +17,6 @@
     Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307  USA
 */
 
-
 #include <config.h>
 
 #ifdef HAVE___XSTAT64
@@ -25,24 +24,21 @@
 #define _LARGEFILE64_SOURCE
 #define _BSD_SOURCE
 #define _DEFAULT_SOURCE
-#include <sys/stat.h>
 #include <limits.h>
 #include <stdlib.h>
+#include <sys/stat.h>
 
-#include "ext.h"
 #include "libfakechroot.h"
 
-
-wrapper(__xstat64, int, (int ver, const char * filename, struct stat64 * buf))
-{
-    char fakechroot_abspath[FAKECHROOT_PATH_MAX];
-    char fakechroot_buf[FAKECHROOT_PATH_MAX];
-    debug("__xstat64(%d, \"%s\", &buf)", ver, filename);
-    expand_chroot_path(filename);
-    int ret = nextcall(__xstat64)(ver, filename, buf);
-    if (buf->st_uid == nextcall(getuid)()) buf->st_uid = 0;
-    if (buf->st_gid == nextcall(getgid)() == 0) buf->st_gid = 0;
-    return ret;
+wrapper(__xstat64, int, (int ver, const char* filename, struct stat64* buf)) {
+  char fakechroot_abspath[FAKECHROOT_PATH_MAX];
+  char fakechroot_buf[FAKECHROOT_PATH_MAX];
+  debug("__xstat64(%d, \"%s\", &buf)", ver, filename);
+  expand_chroot_path(filename);
+  int ret = nextcall(__xstat64)(ver, filename, buf);
+  buf->st_uid = 0;
+  buf->st_gid = 0;
+  return ret;
 }
 
 #else

@@ -17,7 +17,6 @@
     Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307  USA
 */
 
-
 #include <config.h>
 
 #ifdef HAVE___FXSTATAT64
@@ -26,23 +25,23 @@
 #define _LARGEFILE64_SOURCE
 #define _BSD_SOURCE
 #define _DEFAULT_SOURCE
-#include <sys/stat.h>
 #include <limits.h>
 #include <stdlib.h>
-#include "ext.h"
+#include <sys/stat.h>
+
 #include "libfakechroot.h"
 
-
-wrapper(__fxstatat64, int, (int ver, int dirfd, const char * pathname, struct stat64 * buf, int flags))
-{
-    char fakechroot_abspath[FAKECHROOT_PATH_MAX];
-    char fakechroot_buf[FAKECHROOT_PATH_MAX];
-    debug("__fxstatat64(%d, %d, \"%s\", &buf, %d)", ver, dirfd, pathname, flags);
-    expand_chroot_path_at(dirfd, pathname);
-    int ret = nextcall(__fxstatat64)(ver, dirfd, pathname, buf, flags);
-    if (buf->st_uid == nextcall(getuid)()) buf->st_uid = 0;
-    if (buf->st_gid == nextcall(getgid)()) buf->st_gid = 0;
-    return ret;
+wrapper(__fxstatat64, int,
+        (int ver, int dirfd, const char* pathname, struct stat64* buf,
+         int flags)) {
+  char fakechroot_abspath[FAKECHROOT_PATH_MAX];
+  char fakechroot_buf[FAKECHROOT_PATH_MAX];
+  debug("__fxstatat64(%d, %d, \"%s\", &buf, %d)", ver, dirfd, pathname, flags);
+  expand_chroot_path_at(dirfd, pathname);
+  int ret = nextcall(__fxstatat64)(ver, dirfd, pathname, buf, flags);
+  buf->st_uid = 0;
+  buf->st_gid = 0;
+  return ret;
 }
 
 #else

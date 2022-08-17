@@ -25,7 +25,6 @@
 #include <sys/stat.h>
 #include <sys/types.h>
 #include <unistd.h>
-#include "ext.h"
 
 #include "libfakechroot.h"
 
@@ -37,8 +36,8 @@ wrapper(statx, int,
   debug("statx(%d, \"%s\", %d, %u, &statxbuf)", dirfd, pathname, flags, mask);
   expand_chroot_path_at(dirfd, pathname);
   int ret = nextcall(statx)(dirfd, pathname, flags, mask, statxbuf);
-  if (statxbuf->stx_uid == nextcall(getuid)()) statxbuf->stx_uid = 0;
-  if (statxbuf->stx_gid == nextcall(getgid)()) statxbuf->stx_gid = 0;
+  statxbuf->stx_uid = 0;
+  statxbuf->stx_gid = 0;
   return ret;
 }
 
