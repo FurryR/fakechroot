@@ -105,7 +105,7 @@ wrapper(getgroups, int, (int size, gid_t list[])) {
   return 1;
 }
 wrapper(setgroups, int, (size_t __n, const __gid_t *__groups)) {
-  debug("setgroups(%u,%p)", __n, __groups);
+  debug("setgroups(%u, %p)", __n, __groups);
   return 0;
 }
 wrapper(fchown, int, (int fd, uid_t owner, gid_t group)) {
